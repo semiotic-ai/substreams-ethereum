@@ -26,7 +26,7 @@ fn impl_ethabi_derive(ast: &syn::DeriveInput) -> Result<proc_macro2::TokenStream
     let options = get_options(&ast.attrs, "ethabi_contract_options")?;
     let path = get_option(&options, "path")?;
 
-    substreams_ethereum_abigen::generate_abi_code(path)
+    substreams_ethereum_abigen::generate_abi_code(path, None)
         .map_err(|e| Error::Other(Cow::Owned(format!("{}", e))))
 }
 

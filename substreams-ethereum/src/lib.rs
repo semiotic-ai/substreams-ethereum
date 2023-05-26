@@ -27,6 +27,8 @@ pub use getrandom;
 ///     }
 /// ```
 pub use substreams_ethereum_abigen::build::Abigen;
+pub use substreams_ethereum_abigen::build::AbiExtension;
+pub use substreams_ethereum_abigen::build::EventExtension;
 
 /// This macro can be used to import an Ethereum ABI file in JSON format and generate all the
 /// required bindings for ABI decoding/encoding in Rust, targetting `substreams` developer

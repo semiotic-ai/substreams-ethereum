@@ -18,6 +18,7 @@ mod event;
 mod function;
 
 use anyhow::format_err;
+use build::AbiExtension;
 // use ethabi::{Contract, Error, Param, ParamType, Result};
 use ethabi::{Contract, Error, Param, ParamType};
 use heck::ToSnakeCase;
@@ -33,6 +34,7 @@ use syn::Index;
 
 pub fn generate_abi_code<S: AsRef<str>>(
     path: S,
+    extension: Option<AbiExtension>,
 ) -> Result<proc_macro2::TokenStream, anyhow::Error> {
     let normalized_path = normalize_path(path.as_ref())?;
     let source_file = fs::File::open(&normalized_path).map_err(|_| {
@@ -42,7 +44,7 @@ pub fn generate_abi_code<S: AsRef<str>>(
         )))
     })?;
     let contract = Contract::load(source_file)?;
-    let c = contract::Contract::from(&contract);
+    let c = contract::Contract::from(&contract).add_extension(extension);
     Ok(c.generate())
 }
 

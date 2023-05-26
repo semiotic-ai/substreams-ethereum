@@ -2,7 +2,7 @@ use heck::{ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 
-use crate::{decode_topic, fixed_data_size, min_data_size};
+use crate::{build::EventExtension, decode_topic, fixed_data_size, min_data_size};
 
 use super::{from_token, rust_type, to_syntax_string};
 
@@ -17,6 +17,8 @@ pub struct Event {
     decode_indexed_fields: Vec<TokenStream>,
     decode_unindexed_fields: Vec<TokenStream>,
     decode_data: TokenStream,
+
+    extension: Option<EventExtension>,
 }
 
 impl<'a> From<(&'a String, &'a ethabi::Event)> for Event {
@@ -131,6 +133,7 @@ impl<'a> From<(&'a String, &'a ethabi::Event)> for Event {
             decode_indexed_fields,
             decode_unindexed_fields,
             decode_data,
+            extension: None,
         }
     }
 }
@@ -155,6 +158,40 @@ impl Event {
         decode_fields.extend(self.decode_indexed_fields.iter());
         decode_fields.extend(self.decode_unindexed_fields.iter());
 
+        let imports = if let Some(extension) = &self.extension {
+            let list = extension.extended_event_import();
+            if list.len() > 0 {
+                let ident: Vec<_> = list
+                    .iter()
+                    .map(|ident| syn::parse_str::<syn::Path>(ident).unwrap())
+                    .collect();
+                Some(quote! {
+                    #(use #ident;)*
+                })
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        let derive = if let Some(extension) = &self.extension {
+            let list = extension.extended_event_derive();
+            if list.len() > 0 {
+                let ident: Vec<_> = list
+                    .iter()
+                    .map(|ident| syn::parse_str::<syn::Path>(ident).unwrap())
+                    .collect();
+                Some(quote! {
+                    #(,#ident)*
+                })
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
         let min_data_size = &self.min_data_size;
         let log_match_data = match &self.fixed_data_size {
             Some(fixed_data_size) => {
@@ -174,7 +211,9 @@ impl Event {
         };
 
         quote! {
-            #[derive(Debug, Clone, PartialEq)]
+            #imports
+
+            #[derive(Debug, Clone, PartialEq #derive)]
             pub struct #camel_name {
                 #(#log_fields),*
             }
@@ -212,6 +251,10 @@ impl Event {
                 }
             }
         }
+    }
+
+    pub fn add_extension(&mut self, extension: EventExtension) {
+        self.extension = Some(extension);
     }
 }
 

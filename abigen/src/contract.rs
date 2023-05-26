@@ -10,13 +10,14 @@ use proc_macro2::TokenStream;
 use quote::quote;
 
 // use crate::{constructor::Constructor,};
-use crate::{event::Event, function::Function};
+use crate::{build::AbiExtension, event::Event, function::Function};
 
 /// Structure used to generate rust interface for solidity contract.
 pub struct Contract {
     // constructor: Option<Constructor>,
     functions: Vec<Function>,
     events: Vec<Event>,
+    extension: Option<AbiExtension>,
 }
 
 impl<'a> From<&'a ethabi::Contract> for Contract {
@@ -63,11 +64,23 @@ impl<'a> From<&'a ethabi::Contract> for Contract {
             // constructor: c.constructor.as_ref().map(Into::into),
             functions,
             events,
+            extension: None,
         }
     }
 }
 
 impl Contract {
+    pub fn add_extension(mut self, extension: Option<AbiExtension>) -> Self {
+        if let Some(extension) = extension {
+            let event_extension = extension.event_extension();
+            self.extension = Some(extension);
+
+            self.events.iter_mut().for_each(|event| {
+                event.add_extension(event_extension.clone());
+            });
+        }
+        self
+    }
     /// Generates rust interface for a contract.
     pub fn generate(&self) -> TokenStream {
         // let constructor = self.constructor.as_ref().map(Constructor::generate);
