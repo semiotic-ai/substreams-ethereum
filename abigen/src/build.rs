@@ -85,26 +85,13 @@ impl Abigen {
         // no wrapping statement. Below that we remove the first and last line of the generated code
         // which fixes the problem.
         //
-        // There is probably a way to avoid that somehow?
-        let file = quote! {
-            mod __remove__ {
-                #item
-            }
-        };
 
-        let file = syn::File {
-            attrs: vec![],
-            items: vec![syn::parse2(file).context("parsing generated code")?],
-            shebang: None,
-        };
+        let file = syn::parse_file(&item.to_string()).context("parsing generated code")?;
 
         let code = prettyplease::unparse(&file);
-        let mut lines = code.lines();
-        lines.next();
-        lines.next_back();
 
         Ok(GeneratedBindings {
-            code: lines.collect::<Vec<_>>().join("\n"),
+            code,
         })
     }
 }
