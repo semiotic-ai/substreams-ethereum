@@ -1521,7 +1521,7 @@
             pub fn match_and_decode(
                 log: &substreams_ethereum::pb::eth::v2::Log,
             ) -> Option<Events> {
-                use substreams_ethereum_core::Event;
+                use substreams_ethereum::Event;
                 if let Some(event) = EventAddressIdxString::match_and_decode(log) {
                     return Some(Events::EventAddressIdxString(event));
                 }

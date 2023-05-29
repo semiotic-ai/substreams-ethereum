@@ -157,7 +157,7 @@ impl Contract {
 
                 impl Events {
                     pub fn match_and_decode(log: &substreams_ethereum::pb::eth::v2::Log) -> Option<Events> {
-                        use substreams_ethereum_core::Event;
+                        use substreams_ethereum::Event;
                         #( #event_match )*
                         return None
                     }
