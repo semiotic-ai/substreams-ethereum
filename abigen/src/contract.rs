@@ -14,7 +14,7 @@ use crate::{build::AbiExtension, event::Event, function::Function};
 
 /// Structure used to generate rust interface for solidity contract.
 pub struct Contract {
-    contract_name: Option<&'static str>,
+    contract_name: Option<String>,
     // constructor: Option<Constructor>,
     functions: Vec<Function>,
     events: Vec<Event>,
@@ -72,7 +72,7 @@ impl<'a> From<&'a ethabi::Contract> for Contract {
 }
 
 impl Contract {
-    pub fn add_contract_name(mut self, name: &'static str) -> Self {
+    pub fn add_contract_name(mut self, name: String) -> Self {
         self.contract_name = Some(name);
         self
     }
@@ -136,7 +136,7 @@ impl Contract {
             None
         };
 
-        let contract_name = self.contract_name.unwrap_or("").to_string();
+        let contract_name = self.contract_name.clone().unwrap_or("".to_string()).to_string();
 
 
         quote! {

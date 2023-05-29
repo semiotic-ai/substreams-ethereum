@@ -34,7 +34,7 @@ use syn::Index;
 
 pub fn generate_abi_code<S: AsRef<str>>(
     path: S,
-    contract_name: &'static str,
+    contract_name: String,
     extension: Option<AbiExtension>,
 ) -> Result<proc_macro2::TokenStream, anyhow::Error> {
     let normalized_path = normalize_path(path.as_ref())?;
