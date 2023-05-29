@@ -1496,7 +1496,7 @@
     #[allow(dead_code, unused_imports, unused_variables)]
     pub mod events {
         use super::INTERNAL_ERR;
-        enum Events {
+        pub enum Events {
             EventAddressIdxString(EventAddressIdxString),
             EventAddressIdxStringUint256IdxBytes(EventAddressIdxStringUint256IdxBytes),
             EventAddressIdxUint256Uint256AddressIdx(

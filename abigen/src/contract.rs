@@ -150,7 +150,7 @@ impl Contract {
                 use super::INTERNAL_ERR;
 
                 #derive
-                enum Events {
+                pub enum Events {
                     #( #events_ident(#events_ident), )*
                 }
 
