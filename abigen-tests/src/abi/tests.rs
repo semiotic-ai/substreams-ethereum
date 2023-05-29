@@ -1496,7 +1496,90 @@
     #[allow(dead_code, unused_imports, unused_variables)]
     pub mod events {
         use super::INTERNAL_ERR;
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        enum Events {
+            EventAddressIdxString(EventAddressIdxString),
+            EventAddressIdxStringUint256IdxBytes(EventAddressIdxStringUint256IdxBytes),
+            EventAddressIdxUint256Uint256AddressIdx(
+                EventAddressIdxUint256Uint256AddressIdx,
+            ),
+            EventBytes20UintAddressIdx(EventBytes20UintAddressIdx),
+            EventBytes32UintAddressIdx(EventBytes32UintAddressIdx),
+            EventInt256(EventInt256),
+            EventInt256Idx(EventInt256Idx),
+            EventUArrayBool(EventUArrayBool),
+            EventUBytes8UBytes16UBytes24UBytes32(EventUBytes8UBytes16UBytes24UBytes32),
+            EventUFixedArrayString(EventUFixedArrayString),
+            EventUFixedArraySubDynamic(EventUFixedArraySubDynamic),
+            EventUFixedArraySubFixed(EventUFixedArraySubFixed),
+            EventUTupleAddress(EventUTupleAddress),
+            EventUTupleBool(EventUTupleBool),
+            EventWithOverloads1(EventWithOverloads1),
+            EventWithOverloads2(EventWithOverloads2),
+            EventWithOverloads3(EventWithOverloads3),
+        }
+        impl Events {
+            pub fn match_and_decode(
+                log: &substreams_ethereum::pb::eth::v2::Log,
+            ) -> Option<Events> {
+                use substreams_ethereum_core::Event;
+                if let Some(event) = EventAddressIdxString::match_and_decode(log) {
+                    return Some(Events::EventAddressIdxString(event));
+                }
+                if let Some(event)
+                    = EventAddressIdxStringUint256IdxBytes::match_and_decode(log) {
+                    return Some(Events::EventAddressIdxStringUint256IdxBytes(event));
+                }
+                if let Some(event)
+                    = EventAddressIdxUint256Uint256AddressIdx::match_and_decode(log) {
+                    return Some(Events::EventAddressIdxUint256Uint256AddressIdx(event));
+                }
+                if let Some(event) = EventBytes20UintAddressIdx::match_and_decode(log) {
+                    return Some(Events::EventBytes20UintAddressIdx(event));
+                }
+                if let Some(event) = EventBytes32UintAddressIdx::match_and_decode(log) {
+                    return Some(Events::EventBytes32UintAddressIdx(event));
+                }
+                if let Some(event) = EventInt256::match_and_decode(log) {
+                    return Some(Events::EventInt256(event));
+                }
+                if let Some(event) = EventInt256Idx::match_and_decode(log) {
+                    return Some(Events::EventInt256Idx(event));
+                }
+                if let Some(event) = EventUArrayBool::match_and_decode(log) {
+                    return Some(Events::EventUArrayBool(event));
+                }
+                if let Some(event)
+                    = EventUBytes8UBytes16UBytes24UBytes32::match_and_decode(log) {
+                    return Some(Events::EventUBytes8UBytes16UBytes24UBytes32(event));
+                }
+                if let Some(event) = EventUFixedArrayString::match_and_decode(log) {
+                    return Some(Events::EventUFixedArrayString(event));
+                }
+                if let Some(event) = EventUFixedArraySubDynamic::match_and_decode(log) {
+                    return Some(Events::EventUFixedArraySubDynamic(event));
+                }
+                if let Some(event) = EventUFixedArraySubFixed::match_and_decode(log) {
+                    return Some(Events::EventUFixedArraySubFixed(event));
+                }
+                if let Some(event) = EventUTupleAddress::match_and_decode(log) {
+                    return Some(Events::EventUTupleAddress(event));
+                }
+                if let Some(event) = EventUTupleBool::match_and_decode(log) {
+                    return Some(Events::EventUTupleBool(event));
+                }
+                if let Some(event) = EventWithOverloads1::match_and_decode(log) {
+                    return Some(Events::EventWithOverloads1(event));
+                }
+                if let Some(event) = EventWithOverloads2::match_and_decode(log) {
+                    return Some(Events::EventWithOverloads2(event));
+                }
+                if let Some(event) = EventWithOverloads3::match_and_decode(log) {
+                    return Some(Events::EventWithOverloads3(event));
+                }
+                return None;
+            }
+        }
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventAddressIdxString {
             pub first: Vec<u8>,
             pub second: String,
@@ -1591,7 +1674,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventAddressIdxStringUint256IdxBytes {
             pub first: Vec<u8>,
             pub second: String,
@@ -1712,7 +1795,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventAddressIdxUint256Uint256AddressIdx {
             pub first: Vec<u8>,
             pub second: substreams::scalar::BigInt,
@@ -1843,7 +1926,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventBytes20UintAddressIdx {
             pub first: [u8; 20usize],
             pub second: substreams::scalar::BigInt,
@@ -1957,7 +2040,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventBytes32UintAddressIdx {
             pub first: [u8; 32usize],
             pub second: substreams::scalar::BigInt,
@@ -2071,7 +2154,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventInt256 {
             pub param0: substreams::scalar::BigInt,
         }
@@ -2154,7 +2237,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventInt256Idx {
             pub param0: substreams::scalar::BigInt,
         }
@@ -2224,7 +2307,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventUArrayBool {
             pub param0: Vec<bool>,
         }
@@ -2305,7 +2388,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventUBytes8UBytes16UBytes24UBytes32 {
             pub param0: [u8; 8usize],
             pub param1: [u8; 16usize],
@@ -2426,7 +2509,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventUFixedArrayString {
             pub param0: [String; 2usize],
         }
@@ -2517,7 +2600,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventUFixedArraySubDynamic {
             pub param0: [Vec<u8>; 2usize],
         }
@@ -2608,7 +2691,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventUFixedArraySubFixed {
             pub param0: [Vec<u8>; 2usize],
         }
@@ -2705,7 +2788,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventUTupleAddress {
             pub param0: (Vec<u8>,),
         }
@@ -2793,7 +2876,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventUTupleBool {
             pub param0: (bool,),
         }
@@ -2879,7 +2962,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventWithOverloads1 {
             pub first: Vec<u8>,
         }
@@ -2962,7 +3045,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventWithOverloads2 {
             pub second: String,
         }
@@ -3043,7 +3126,7 @@
                 Self::decode(log)
             }
         }
-        #[derive(Debug, Clone, PartialEq, Hash)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct EventWithOverloads3 {
             pub third: substreams::scalar::BigInt,
         }

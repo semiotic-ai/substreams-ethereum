@@ -1,5 +1,5 @@
 use heck::{ToSnakeCase, ToUpperCamelCase};
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Span, TokenStream, Ident};
 use quote::quote;
 
 use crate::{build::EventExtension, decode_topic, fixed_data_size, min_data_size};
@@ -148,7 +148,7 @@ impl Event {
             .iter()
             .map(|value| quote! { #value })
             .collect();
-        let camel_name = syn::Ident::new(&self.name.to_upper_camel_case(), Span::call_site());
+        let camel_name = self.generate_camel_name();
         let log_fields = &self.log_fields;
 
         let decode_data = &self.decode_data;
@@ -251,6 +251,10 @@ impl Event {
                 }
             }
         }
+    }
+
+    pub fn generate_camel_name(&self) -> Ident {
+        syn::Ident::new(&self.name.to_upper_camel_case(), Span::call_site())
     }
 
     pub fn add_extension(&mut self, extension: EventExtension) {

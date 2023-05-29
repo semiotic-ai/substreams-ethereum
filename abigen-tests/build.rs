@@ -10,7 +10,7 @@ fn main() -> Result<(), anyhow::Error> {
 
         let abigen = Abigen::new(abi, &in_path)?;
         let mut event_extension = EventExtension::new();
-        event_extension.extend_event_derive("Hash");
+        // event_extension.extend_event_derive("Hash");
         let extension = AbiExtension::new(event_extension);
         abigen.add_extension(extension).generate()?.write_to_file(&out_path)?;
     }

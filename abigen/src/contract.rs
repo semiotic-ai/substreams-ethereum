@@ -90,8 +90,49 @@ impl Contract {
             .iter()
             .map(|event| event.generate_event())
             .collect();
+
+        let events_ident: Vec<_> = self
+            .events
+            .iter()
+            .map(|event| event.generate_camel_name())
+            .collect();
         // let logs: Vec<_> = self.events.iter().map(Event::generate_log).collect();
+
+        let event_match: Vec<_> = self
+            .events
+            .iter()
+            .map(|event| {
+                let event = event.generate_camel_name();
+                quote! {
+                    if let Some(event) = #event::match_and_decode(log) {
+                        return Some(Events::#event(event));
+                    }
+                }
+            })
+            .collect();
+
+        let derive = if let Some(extension) = &self.extension {
+            let event_extension = extension.event_extension();
+            let list = event_extension.extended_event_derive();
+            if list.len() > 0 {
+                let ident: Vec<_> = list
+                    .iter()
+                    .map(|ident| syn::parse_str::<syn::Path>(ident).unwrap())
+                    .collect();
+                Some(quote! {
+                    #[derive(#(#ident),*)]
+                })
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+
+
         quote! {
+
             const INTERNAL_ERR: &'static str = "`ethabi_derive` internal error";
 
             // #constructor
@@ -107,6 +148,21 @@ impl Contract {
             #[allow(dead_code, unused_imports, unused_variables)]
             pub mod events {
                 use super::INTERNAL_ERR;
+
+                #derive
+                enum Events {
+                    #( #events_ident(#events_ident), )*
+                }
+
+
+                impl Events {
+                    pub fn match_and_decode(log: &substreams_ethereum::pb::eth::v2::Log) -> Option<Events> {
+                        use substreams_ethereum_core::Event;
+                        #( #event_match )*
+                        return None
+                    }
+                }
+
                 #(#events)*
             }
         }
