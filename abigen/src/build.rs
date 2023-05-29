@@ -8,6 +8,7 @@ use quote::quote;
 pub struct Abigen {
     /// The path where to fin the source of the ABI JSON for the contract whose bindings
     /// are being generated.
+    contract_name: &'static str,
     abi_path: PathBuf,
     extension: Option<AbiExtension>,
 }
@@ -61,10 +62,11 @@ impl EventExtension {
 impl Abigen {
     /// Creates a new builder for the given contract name and where the ABI JSON file can be found
     /// at `path`, which is relative to the your crate's root directory (where `Cargo.toml` file is located).
-    pub fn new<S: AsRef<str>>(_contract_name: S, path: S) -> Result<Self, anyhow::Error> {
+    pub fn new<S: AsRef<str>>(contract_name: &'static str, path: S) -> Result<Self, anyhow::Error> {
         let path = normalize_path(path.as_ref()).context("normalize path")?;
 
         Ok(Self {
+            contract_name,
             abi_path: path,
             extension: None,
         })
@@ -76,7 +78,7 @@ impl Abigen {
     }
 
     pub fn generate(&self) -> Result<GeneratedBindings, anyhow::Error> {
-        let item = generate_abi_code(self.abi_path.to_string_lossy(), self.extension.clone())
+        let item = generate_abi_code(self.abi_path.to_string_lossy(), self.contract_name, self.extension.clone())
             .context("generating abi code")?;
 
         // FIXME: We wrap into a fake module because `syn::parse2(file)` doesn't like it when there is

@@ -14,6 +14,7 @@ use crate::{build::AbiExtension, event::Event, function::Function};
 
 /// Structure used to generate rust interface for solidity contract.
 pub struct Contract {
+    contract_name: Option<&'static str>,
     // constructor: Option<Constructor>,
     functions: Vec<Function>,
     events: Vec<Event>,
@@ -65,11 +66,17 @@ impl<'a> From<&'a ethabi::Contract> for Contract {
             functions,
             events,
             extension: None,
+            contract_name: None,
         }
     }
 }
 
 impl Contract {
+    pub fn add_contract_name(mut self, name: &'static str) -> Self {
+        self.contract_name = Some(name);
+        self
+    }
+
     pub fn add_extension(mut self, extension: Option<AbiExtension>) -> Self {
         if let Some(extension) = extension {
             let event_extension = extension.event_extension();
@@ -129,11 +136,13 @@ impl Contract {
             None
         };
 
+        let contract_name = self.contract_name.unwrap_or("").to_string();
 
 
         quote! {
 
             const INTERNAL_ERR: &'static str = "`ethabi_derive` internal error";
+            const CONTRACT_NAME: &'static str = #contract_name;
 
             // #constructor
 

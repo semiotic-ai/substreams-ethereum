@@ -1,4 +1,5 @@
     const INTERNAL_ERR: &'static str = "`ethabi_derive` internal error";
+    const CONTRACT_NAME: &'static str = "tests";
     /// Contract's functions.
     #[allow(dead_code, unused_imports, unused_variables)]
     pub mod functions {
