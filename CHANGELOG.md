@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.6](https://github.com/streamingfast/substreams-ethereum/releases/tag/v0.9.6)
+* Update `block_view` with updated ethereum block at `https://github.com/streamingfast/firehose-ethereum/releases/download/v2.0.0/ethereum-v1.1.0.spkg` with added field `DetailLevel`
+> **_IMPORTANT:_**: Using blocks with `DetailLevel` set to `Extended` (the default level), `block.transactions()` returns only successful transactions.
+> Blocks with `DetailLevel` set to `Base` does not have information about transaction successfulness. Note that a failed transaction will never have logs attached to it. 
+
+## [0.9.5](https://github.com/streamingfast/substreams-ethereum/releases/tag/v0.9.5)
+
+* Generate ABI from bytes with method `from_bytes` of `Abigen`
+  Example usage:
+```rust
+Abigen::from_bytes("Contract", content_bytes))?
+            .generate()?
+            .write_to_file("src/abi/contract.rs")?;
+```
+
+## [0.9.4](https://github.com/streamingfast/substreams-ethereum/releases/tag/v0.9.4)
+
+* Fixed ABI code generator generating invalid code `encode` code when a function has a parameter of type `tuple`.
+
+## [0.9.3](https://github.com/streamingfast/substreams-ethereum/releases/tag/v0.9.3)
+
+* Added `timestamp` on `Block` type, returns a reference to the header's timestamp.
+
+* Re-generated Protobuf `Block` type using latest `firehose-ethereum` source, this brings in some missing `BalanceChange#Reason` enum values.
+
+## [0.9.2](https://github.com/streamingfast/substreams-ethereum/releases/tag/v0.9.2)
+
+* Added `parent` on `CallView` to retrieve the parent call of the current `Call` pointed to by `CallView`
+
+* Added `logs_with_calls` on `TransactionTrace` which iterates over the logs of the transaction (excluding those from call that were reverted) and yields each log as a tuple `(&Log, CallView)`.
+
 ## [0.9.1](https://github.com/streamingfast/substreams-ethereum/releases/tag/v0.9.1)
 
 * Fixed encoding of function when dealing with a `bool` referenced as a sub type (like in a function that accepts `bool[]`).

@@ -1,14 +1,17 @@
 use std::path::{Path, PathBuf};
+use std::str;
 
-use crate::{generate_abi_code, normalize_path};
+use crate::{generate_abi_code, generate_abi_code_from_bytes, normalize_path};
 use anyhow::Context;
 
 #[derive(Debug, Clone)]
-pub struct Abigen {
-    /// The path where to fin the source of the ABI JSON for the contract whose bindings
+pub struct Abigen<'a> {
+    /// The path where to find the source of the ABI JSON for the contract whose bindings
     /// are being generated.
     contract_name: String,
     abi_path: PathBuf,
+    /// The bytes of the ABI for the contract whose bindings are being generated.
+    bytes: Option<&'a [u8]>,
     extension: Option<AbiExtension>,
 }
 
@@ -58,15 +61,16 @@ impl EventExtension {
     }
 }
 
-impl Abigen {
+impl<'a> Abigen<'a> {
     /// Creates a new builder for the given contract name and where the ABI JSON file can be found
     /// at `path`, which is relative to the your crate's root directory (where `Cargo.toml` file is located).
     pub fn new<S: AsRef<str>>(contract_name: S, path: S) -> Result<Self, anyhow::Error> {
         let path = normalize_path(path.as_ref()).context("normalize path")?;
 
-        Ok(Self {
+        Ok( Self {
             contract_name: contract_name.as_ref().to_string(),
             abi_path: path,
+            bytes: None,
             extension: None,
         })
     }
@@ -76,13 +80,37 @@ impl Abigen {
         self
     }
 
+    /// Creates a new builder for the given contract name and where the ABI bytes can be found
+    /// at 'abi_bytes'.
+    pub fn from_bytes<S: AsRef<str>>(
+        _contract_name: S,
+        abi_bytes: &'a [u8],
+    ) -> Result<Self, anyhow::Error> {
+        Ok(Self {
+            abi_path: "".parse()?,
+            contract_name: _contract_name.as_ref().to_string(),
+            bytes: Some(abi_bytes),
+            extension: None,
+        })
+    }
+
     pub fn generate(&self) -> Result<GeneratedBindings, anyhow::Error> {
-        let item = generate_abi_code(
-            self.abi_path.to_string_lossy(),
-            self.contract_name.clone(),
-            self.extension.clone(),
-        )
-        .context("generating abi code")?;
+        let item = match &self.bytes {
+            None => {
+                generate_abi_code(
+                    self.abi_path.to_string_lossy(),
+                    self.contract_name.clone(),
+                     self.extension.clone()
+                    ).context("generating abi code")?
+            }
+            Some(bytes) => {
+                generate_abi_code_from_bytes(
+                    bytes,
+                    self.contract_name.clone(), 
+                    self.extension.clone()
+                ).context("generating abi code")?
+            }
+        };
 
         // FIXME: We wrap into a fake module because `syn::parse2(file)` doesn't like it when there is
         // no wrapping statement. Below that we remove the first and last line of the generated code
