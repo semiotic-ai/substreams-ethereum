@@ -15,6 +15,7 @@ use crate::{build::AbiExtension, event::Event, function::Function};
 /// Structure used to generate rust interface for solidity contract.
 pub struct Contract {
     contract_name: Option<String>,
+    contract_address: Option<String>,
     // constructor: Option<Constructor>,
     functions: Vec<Function>,
     events: Vec<Event>,
@@ -67,6 +68,7 @@ impl<'a> From<&'a ethabi::Contract> for Contract {
             events,
             extension: None,
             contract_name: None,
+            contract_address: None,
         }
     }
 }
@@ -74,6 +76,11 @@ impl<'a> From<&'a ethabi::Contract> for Contract {
 impl Contract {
     pub fn add_contract_name(mut self, name: String) -> Self {
         self.contract_name = Some(name);
+        self
+    }
+
+    pub fn add_contract_address(mut self, address: Option<String>) -> Self {
+        self.contract_address = address;
         self
     }
 
@@ -138,6 +145,18 @@ impl Contract {
 
         let contract_name = self.contract_name.clone().unwrap_or("".to_string()).to_string();
 
+        let contract_check = if let Some(address) = &self.contract_address {
+            quote! {
+                use hex;
+
+                if hex::encode(log.address.clone()) != #address {
+                    return None;
+                }
+            }
+        } else {
+            quote! {}
+        };
+
 
         quote! {
 
@@ -167,7 +186,8 @@ impl Contract {
                 impl Events {
                     pub fn match_and_decode(log: &substreams_ethereum::pb::eth::v2::Log) -> Option<Events> {
                         use substreams_ethereum::Event;
-                        #( #event_match )*
+                           #contract_check
+                           #( #event_match )*
                         return None
                     }
                 }

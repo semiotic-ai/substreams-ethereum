@@ -192,6 +192,24 @@ impl Event {
             None
         };
 
+        let attributes = if let Some(extension) = &self.extension {
+            let list = extension.extended_event_attribute();
+            if list.len() > 0 {
+                let ident: Vec<_> = list
+                    .iter()
+                    .map(|ident| syn::parse_str::<syn::Expr>(ident).unwrap())
+                    .collect();
+                Some(quote! {
+                    #(#ident),*
+                })
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+
         let min_data_size = &self.min_data_size;
         let log_match_data = match &self.fixed_data_size {
             Some(fixed_data_size) => {
@@ -214,6 +232,7 @@ impl Event {
             #imports
 
             #[derive(Debug, Clone, PartialEq #derive)]
+            #[#attributes]
             pub struct #camel_name {
                 #(#log_fields),*
             }

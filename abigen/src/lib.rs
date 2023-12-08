@@ -35,6 +35,7 @@ use syn::Index;
 pub fn generate_abi_code<S: AsRef<str>>(
     path: S,
     contract_name: String,
+    contract_address: Option<String>,
     extension: Option<AbiExtension>,
 ) -> Result<proc_macro2::TokenStream, anyhow::Error> {
     let normalized_path = normalize_path(path.as_ref())?;
@@ -47,15 +48,25 @@ pub fn generate_abi_code<S: AsRef<str>>(
     let contract = Contract::load(source_file)?;
     let c = contract::Contract::from(&contract)
         .add_extension(extension)
-        .add_contract_name(contract_name);
+        .add_contract_name(contract_name)
+        .add_contract_address(contract_address);
+
     Ok(c.generate())
 }
 
 pub fn generate_abi_code_from_bytes(
     bytes: &[u8],
+    contract_name: String,
+    contract_address: Option<String>,
+    extension: Option<AbiExtension>
 ) -> Result<proc_macro2::TokenStream, anyhow::Error> {
     let contract = Contract::load(bytes)?;
-    let c = contract::Contract::from(&contract);
+    
+    let c = contract::Contract::from(&contract)
+        .add_extension(extension)
+        .add_contract_name(contract_name)
+        .add_contract_address(contract_address);
+
     Ok(c.generate())
 }
 
