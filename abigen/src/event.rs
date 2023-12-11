@@ -199,14 +199,14 @@ impl Event {
                     .iter()
                     .map(|ident| syn::parse_str::<syn::Expr>(ident).unwrap())
                     .collect();
-                Some(quote! {
-                    #(#ident),*
-                })
+                quote! {
+                    #[#(#ident),*]
+                }
             } else {
-                None
+                quote! {}
             }
         } else {
-            None
+            quote! {}
         };
 
 
@@ -232,7 +232,7 @@ impl Event {
             #imports
 
             #[derive(Debug, Clone, PartialEq #derive)]
-            #[#attributes]
+            #attributes
             pub struct #camel_name {
                 #(#log_fields),*
             }
